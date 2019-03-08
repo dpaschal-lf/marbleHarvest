@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+	<style type="text/css">
+#row{
+  background-color: grey;
+  height: 100vh;
+  width: 20%;
+}
+.marble{
+  border: 1px solid black;
+  border-radius: 50%;
+  height: 10vh;
+  width: 10vh;
+}
+	</style>
+	<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+
+	<script>
+$(document).ready( startStuff );
+var row = null;
+function startStuff(){
+  row = new Row('yyrrbkbrryk');
+}
+
+class Marble{
+  constructor( color, parentClickHandler ){
+    this.color = color;
+    this.clickCallback = parentClickHandler
+    this.domElement = null;
+    this.handleClick = this.handleClick.bind(this);
+  }
+  getColor(){
+    return this.color;
+  }
+  handleClick(){
+  	this.clickCallback( this );
+  }
+  render(){
+    this.domElement = $("<div>",{
+      'class': 'marble',
+      css: {
+        'background-color': this.color
+      },
+      on: {
+      	click: this.handleClick
+      }
+    })
+    return this.domElement;
+  }
+}
+
+class Row{
+  constructor(marbleColors){
+    this.marbles = [];
+    this.handleMarbleClick = this.handleMarbleClick.bind(this);
+    this.createMarbles(marbleColors);
+  }
+  createMarbles( marbleColors ){
+    var marbleArray = marbleColors.split('');
+    var marbleColorsConverter = {
+      'y': 'yellow',
+      'b': 'blue',
+      'k': 'black',
+      'r': 'red'
+    }
+    for( var marbleIndex=0; marbleIndex < marbleArray.length; marbleIndex++){
+      var marble = new Marble( marbleColorsConverter[marbleColors[marbleIndex]], this.handleMarbleClick);
+      this.marbles.push(marble);
+      var marbleDom = marble.render();
+      $("#row").append(marbleDom);
+    }
+  }
+  handleMarbleClick( marble ){
+    var gatheredMarbles = [ marble ];
+    var currentMarblePosition = this.marbles.indexOf(marble);
+    var prevSpot = currentMarblePosition -1;
+    var nextSpot = currentMarblePosition +1;
+    while(this.marbles[prevSpot] !==undefined && this.marbles[nextSpot] !==undefined
+          && this.marbles[prevSpot].getColor() === this.marbles[nextSpot].getColor()){
+      var currentColor = this.marbles[prevSpot].getColor();
+      while(prevSpot>=0 && this.marbles[prevSpot].getColor() === currentColor){
+        gatheredMarbles.push(this.marbles[prevSpot--]);
+      }
+      while(nextSpot<this.marbles.length && this.marbles[nextSpot].getColor() === currentColor){
+        gatheredMarbles.push(this.marbles[nextSpot++]);
+      }
+    }
+    console.log(gatheredMarbles);
+  }
+}
+</script>
+</head>
+<body>
+	<div id="row"></div></div>
+
+</body>
+</html>
